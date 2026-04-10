@@ -1,5 +1,5 @@
 import "@shopify/shopify-app-remix/adapters/node";
-import { shopifyApp } from "@shopify/shopify-app-remix/server";
+
 import { restResources } from "@shopify/shopify-api/rest/admin/2024-01";
 
 const shopify = shopifyApp({
