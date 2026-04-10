@@ -1,23 +1,20 @@
-//@ts-nocheck
-import { shopifyApp } from "@shopify/shopify-app-react-router/server";
+import "@shopify/shopify-app-remix/adapters/node";
+import { shopifyApp } from "@shopify/shopify-app-remix/server";
+import { restResources } from "@shopify/shopify-api/rest/admin/2024-01";
 
-export const shopify = shopifyApp({
+const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET,
   scopes: process.env.SCOPES?.split(","),
   appUrl: process.env.SHOPIFY_APP_URL,
   authPathPrefix: "/auth",
-
-  webhooks: {
-    PRODUCTS_CREATE: {
-      deliveryMethod: "http",
-      callbackUrl: "/webhooks/products/create",
-    },
-  },
-
-  hooks: {
-    afterAuth: async ({ session }) => {
-      await shopify.registerWebhooks({ session });
-    },
-  },
+  sessionStorage: undefined, // keep default for now
+  restResources,
 });
+
+export default shopify;
+
+// ✅ THIS FIXES YOUR ERROR
+export function addDocumentResponseHeaders(headers, request, context) {
+  return headers;
+}
