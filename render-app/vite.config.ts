@@ -1,4 +1,37 @@
-//@ts-nocheck
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig, type UserConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
+
+// Fix HOST → SHOPIFY_APP_URL
+if (
+  process.env.HOST &&
+  (!process.env.SHOPIFY_APP_URL ||
+    process.env.SHOPIFY_APP_URL === process.env.HOST)
+) {
+  process.env.SHOPIFY_APP_URL = process.env.HOST;
+  delete process.env.HOST;
+}
+
+const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
+  .hostname;
+
+let hmrConfig;
+if (host === "localhost") {
+  hmrConfig = {
+    protocol: "ws",
+    host: "localhost",
+    port: 64999,
+    clientPort: 64999,
+  };
+} else {
+  hmrConfig = {
+    protocol: "wss",
+    host: host,
+    port: parseInt(process.env.FRONTEND_PORT!) || 8002,
+    clientPort: 443,
+  };
+}
+
 export default defineConfig({
   server: {
     allowedHosts: [host],
@@ -22,9 +55,12 @@ export default defineConfig({
     include: ["@shopify/app-bridge-react"],
   },
 
-  // ✅ ADD THIS
+  // ✅ FINAL FIX (DO NOT REMOVE)
   ssr: {
-    external: ["@shopify/shopify-app-remix"],
+    external: [
+      "@shopify/shopify-app-remix",
+      "@shopify/shopify-app-remix/server"
+    ],
   },
 
 }) satisfies UserConfig;
